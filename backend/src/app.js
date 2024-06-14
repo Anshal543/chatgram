@@ -13,28 +13,9 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(express.static("./public"))
 app.use(cookieParser())
 
+import authRouter from "./routes/auth.route.js"
 
-
-app.use((err, req, res, next) => {
-    // 
-    const statusCode = err.statusCode || 501;
-    const message = err.message || 'Internal Server Error';
-
-    res.status(statusCode).json({
-        success: "false",
-        message,
-        statusCode
-    })
-
-})
-
-
-
-
-
-app.get("/", (req, res) => {
-    res.send("Hello World")
-})
+app.use("/api/auth", authRouter)
 
 
 
