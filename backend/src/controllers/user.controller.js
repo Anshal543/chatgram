@@ -4,7 +4,7 @@ import { customError } from "../utils/customError.js";
 
 export const getAllUsers = asyncHandler(async (req, res) => {
     const keyword = req.query.search;
-    const loggedInUser = req.user.id;
+    const loggedInUser = req.user._id;
 
     const users = await User.find({
         $and: [
