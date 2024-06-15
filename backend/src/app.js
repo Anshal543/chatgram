@@ -14,8 +14,10 @@ app.use(express.static("./public"))
 app.use(cookieParser())
 
 import authRouter from "./routes/auth.route.js"
+import userRouter from "./routes/user.route.js"
 
 app.use("/api/auth", authRouter)
+app.use("/api/user", userRouter)
 
 
 

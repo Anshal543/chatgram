@@ -7,7 +7,6 @@ import asyncHandler from 'express-async-handler';
 export const signUp = asyncHandler(async (req, res) => {
 
     const { username, email, password } = req.body;
-    console.log(req.body);
     const existingUser = await User.findOne({ email })
 
     if (existingUser) {
