@@ -31,11 +31,11 @@ export const accessChat = asyncHandler(async (req, res) => {
         };
         try {
             const createdChat = await Chat.create(chatData);
-            const chat = await Chat.findById(createdChat._id).populate(
+            const allChat = await Chat.findById(createdChat._id).populate(
                 "users",
                 "-password"
             );
-            res.send(chat);
+            res.send(allChat);
         } catch (error) {
             throw customError("Chat could not be created", 500);
         }
