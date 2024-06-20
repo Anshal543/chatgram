@@ -57,3 +57,59 @@ export const fetchChats = asyncHandler(async (req, res) => {
     });
     res.send(populatedChats);
 });
+
+export const createGroupChat = asyncHandler(async (req, res) => {
+    if (!req.body.users || !req.body.chatName) {
+        throw customError("Please provide chat name and users", 400);
+    }
+    let users = req.body.users;
+    if (users.length < 0) {
+        throw customError("Group chat must contain more than 2 users", 400);
+    }
+    users.push(req.user);
+    try {
+        const createdGroupChat = await Chat.create({
+            chatName: req.body.chatName,
+            isGroupChat: true,
+            users: users,
+            groupAdmin: req.user,
+        });
+        const fetchGroupChat = await Chat.findById(createdGroupChat._id)
+            .populate("users", "-password")
+            .populate("groupAdmin", "-password");
+
+        res.status(201).send(fetchGroupChat);
+    } catch (error) {
+        throw customError("Group chat could not be created", 500);
+    }
+});
+
+export const renameGroup = asyncHandler(async (req, res) => {
+    const { chatId, chatName } = req.body;
+    const updatedChat = await Chat.findByIdAndUpdate(
+        chatId,
+        { chatName },
+        { new: true }
+    )
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+
+    if (!updatedChat) throw customError("Chat not found", 404);
+    res.send(updatedChat);
+});
+
+export const addToGroup = asyncHandler(async (req, res) => {
+    const { chatId, userId } = req.body;
+    const addedToChat = await Chat.findByIdAndUpdate(
+        chatId,
+        {
+            $push: { users: userId },
+        },
+        { new: true }
+    )
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+
+    if (!addedToChat) throw customError("User could not be added to chat", 500);
+    res.send(addedToChat);
+});
