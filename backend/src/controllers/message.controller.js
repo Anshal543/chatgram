@@ -32,5 +32,17 @@ export const sendMessage = asyncHandler(async (req, res) => {
 });
 
 export const getMessages = asyncHandler(async (req, res) => {
-
-});
+    const { chatId } = req.params;
+    if (!chatId) {
+        throw customError("Chat ID is required", 400);
+    }
+    try {
+        const messages = await Message.find({ chat: chatId })
+            .populate("sender", "username profilePic")
+            .populate("chat");
+            // .sort({ createdAt: 1 });
+        res.status(200).json(messages);
+    } catch (error) {
+        throw customError("Failed to fetch messages", 500);
+    }
+}); 
