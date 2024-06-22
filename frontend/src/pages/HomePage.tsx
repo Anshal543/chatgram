@@ -3,12 +3,17 @@ import { useState, SyntheticEvent } from "react";
 import { TabContext, TabList, TabPanel } from "@mui/lab/";
 import Login from "../components/authentication/Login";
 import SignUp from "../components/authentication/SignUp";
+import { useUser } from "../context/UserContext";
 
 const HomePage = () => {
   const [value, setValue] = useState("2");
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
+  const {user}:any = useUser()
+  if(user){
+    window.location.href = '/chat'
+  }
   return (
     <Container maxWidth="xl" >
       <Box

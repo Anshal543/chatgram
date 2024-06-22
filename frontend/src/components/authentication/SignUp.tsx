@@ -3,27 +3,30 @@ import {  TextField, Stack, IconButton, InputAdornment, Box, Button } from '@mui
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = {
       username: username,
       email: email,
       password: password
     }
-    const signup  = axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/signup`, data)
+    const signup  = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/signup`, data)
     if(signup){
-      console.log('User signed up successfully')
+      console.log("User created successfully",signup.data)
+      // navigate('/login')
     }
 
   

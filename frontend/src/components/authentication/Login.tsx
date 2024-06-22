@@ -2,19 +2,30 @@ import React, { useState } from 'react';
 import {  TextField, Stack, IconButton, InputAdornment, Box, Button } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Handle form submission
+    const data = {
+      email: email,
+      password: password
+    }
+    const login  = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/signin`, data)
+    if(login){
+      console.log("User logged in successfully",login.data)
+      navigate('/chat')
+    }
   };
 
   return (
@@ -42,9 +53,11 @@ const Login = () => {
             id="email"
             type="email"
             variant="outlined"
+            onChange={(e) => setEmail(e.target.value)}
           />
           <TextField
             fullWidth
+            onChange={(e) => setPassword(e.target.value)}
             label="Password"
             id="password"
             type={showPassword ? 'text' : 'password'}
@@ -61,7 +74,7 @@ const Login = () => {
             }}
           />
           <Button type="submit" variant="contained" color="primary" fullWidth>
-            Sign Up
+            Login
           </Button>
         </Stack>
       </form>
