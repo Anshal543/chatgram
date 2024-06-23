@@ -14,11 +14,11 @@ export const verifyToken = async (req, res, next) => {
             if (err) {
                 return next(customError(500, "Something is Wrong with your token!"))
             }
-            
+
             const user = await User.findById(decoded.id);
-            if (!user) {
-                return res.status(404).json({ message: "User not found" });
-            }
+            // if (!user) {
+            //     return res.status(404).json({ message: "User not found" });
+            // }
             req.user = user;
             next();
         }
