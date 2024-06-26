@@ -6,7 +6,7 @@ const router = Router();
 
 router.route("/signup").post(signUp);
 router.route("/signin").post(signIn);
-router.route("/verify").get(verifyToken,verifyUser);
+router.route("/verify").get(verifyUser);
 router.route("/signout").get(signOut);
 
 

@@ -46,7 +46,8 @@ const Login = () => {
 
       if (login) {
         console.log("User logged in successfully", login.data);
-        navigate('/chat');
+        // navigate('/chat');
+        window.location.href = '/chat';
       }
     } catch (err) {
       console.error("Login failed", err);

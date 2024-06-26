@@ -3,8 +3,8 @@ import HomePage from './pages/HomePage'
 import "./App.css"
 import ChatPage from './pages/ChatPage'
 import axios from 'axios'
-axios.defaults.withCredentials = true
 import UserContextProvider from './context/UserContext'
+axios.defaults.withCredentials = true
 
 const App = () => {
   return (

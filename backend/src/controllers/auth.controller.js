@@ -51,6 +51,33 @@ export const verifyUser = asyncHandler(async (req, res) => {
     })
 })
 
+// export const verifyUser = async(req,res,next)=>{
+//     try {
+//         const token = req.cookies.token;
+//         if (!token) {
+//             return next(customError(404, "you are not authenticated!"))
+//         }
+    
+//         jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+//             if (err) {
+//                 return next(customError(500, "Something is Wrong with your token!"))
+//             }
+    
+//             const user = await User.findById(decoded.id);
+//             if (!user) {
+//                 return res.status(404).json({ message: "User not found" });
+//             }
+//             req.user = user;
+//             next();
+//         }
+//         );
+    
+//     } catch (error) {
+//         next(customError(500, "Something is Wrong with your token!"))
+//     }
+
+// }
+
 export const signOut = asyncHandler(async (req, res) => {
     res.clearCookie("token").json({ success: true }).json({ success: true });
 })

@@ -12,7 +12,7 @@ const UserContextProvider = ({ children }: UserContextProviderProps) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user) {
+        
             const getUser = async () => {
                 try {
                     const res = await axios.get(
@@ -28,7 +28,7 @@ const UserContextProvider = ({ children }: UserContextProviderProps) => {
                 }
             };
             getUser();
-        }
+        
     }, []);
 
     return (

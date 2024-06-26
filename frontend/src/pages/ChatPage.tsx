@@ -1,4 +1,3 @@
-import React from 'react'
 import { useUser } from '../context/UserContext'
 import SideDrawer from '../components/chatUtils/SideDrawer'
 import { Box } from '@mui/material'
@@ -6,7 +5,9 @@ import MyChats from '../components/chatUtils/MyChats'
 import ChatBox from '../components/chatUtils/ChatBox'
 
 const ChatPage = () => {
-  const {user}:any = useUser()
+  const {user,loading}:any = useUser()
+  if(loading) return (<div>Loading...</div>)
+  
   return (
     <Box sx={{ width: '100vw', height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
     {user && <SideDrawer />}
