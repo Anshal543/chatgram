@@ -1,24 +1,51 @@
-import { Box, Button, IconButton, Menu, MenuItem, Tooltip, Typography } from "@mui/material";
-import { SyntheticEvent, useState } from "react";
+import {
+  Avatar,
+  Box,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { MouseEvent, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { deepOrange } from "@mui/material/colors";
+import { useUser } from "../../context/UserContext";
 
 const SideDrawer = () => {
-  const [search, setSearch] = useState("");
-  const [searchResult, setSearchResult] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [loadingChat, setLoadingChat] = useState(false);
+  const { user }: any = useUser();
+  const [anchorElNotifications, setAnchorElNotifications] =
+    useState<null | HTMLElement>(null);
+  const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(
+    null
+  );
 
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleClick = (event: SyntheticEvent ) => {
-    setAnchorEl(event.currentTarget);
+  const handleNotificationsClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorElNotifications(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleProfileClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorElProfile(event.currentTarget);
   };
+
+  const handleCloseNotifications = () => {
+    setAnchorElNotifications(null);
+  };
+
+  const handleCloseProfile = () => {
+    setAnchorElProfile(null);
+  };
+  console.log(user);
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("");
+  };
+
   return (
     <>
       <Box
@@ -29,7 +56,7 @@ const SideDrawer = () => {
           bgcolor: "white",
           width: "100%",
           padding: "5px 10px",
-          borderWidth:"5px"
+          borderWidth: "5px",
         }}
       >
         <Tooltip title="Search User" placement="right-end">
@@ -37,6 +64,7 @@ const SideDrawer = () => {
             variant="text"
             sx={{ color: "black", paddingX: 3 }}
             startIcon={<SearchIcon />}
+            disableRipple
           >
             <Typography sx={{ display: { xs: "none", md: "flex" } }}>
               Search User
@@ -44,25 +72,56 @@ const SideDrawer = () => {
           </Button>
         </Tooltip>
         <div>
-      <IconButton
-        edge="start"
-        color="inherit"
-        aria-label="menu"
-        onClick={handleClick}
-      >
-        <NotificationsIcon />
-        <ExpandMoreIcon />
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem>
-        <MenuItem onClick={handleClose}>Logout</MenuItem>
-      </Menu>
-    </div>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="notifications"
+            onClick={handleNotificationsClick}
+            disableRipple
+          >
+            <NotificationsIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorElNotifications}
+            open={Boolean(anchorElNotifications)}
+            onClose={handleCloseNotifications}
+          >
+            <MenuItem onClick={handleCloseNotifications}>
+              Notification 1
+            </MenuItem>
+            <MenuItem onClick={handleCloseNotifications}>
+              Notification 2
+            </MenuItem>
+          </Menu>
+          <IconButton sx={{padding: 1, borderRadius: "20%"}}
+            edge="start"
+            color="inherit"
+            aria-label="profile"
+            onClick={handleProfileClick}
+            // disableRipple
+          >
+            <Avatar
+              sizes="5px"
+              sx={{
+                bgcolor: deepOrange[500],
+                width: 30,
+                height: 30,
+                fontSize: 14,
+              }}
+            >
+              {getInitials(user.rest.username)}
+            </Avatar>{" "}
+            <ExpandMoreIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorElProfile}
+            open={Boolean(anchorElProfile)}
+            onClose={handleCloseProfile}
+          >
+            <MenuItem onClick={handleCloseProfile}>My Profile</MenuItem>
+            <MenuItem onClick={handleCloseProfile}>Logout</MenuItem>
+          </Menu>
+        </div>
       </Box>
     </>
   );

@@ -43,11 +43,16 @@ export const verifyUser = asyncHandler(async (req, res) => {
     if (!token) {
         throw customError("Unauthorized", 401)
     }
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET, async(err, decoded) => {
         if (err) {
             throw customError("Unauthorized", 401)
         }
-        res.json({ success: true, user: decoded })
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            throw customError("Unauthorized", 401)
+        }
+        const { password, ...rest } = user._doc;
+        res.json({ success: true, rest });
     })
 })
 
