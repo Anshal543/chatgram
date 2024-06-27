@@ -1,4 +1,10 @@
-import { Box, CircularProgress, Container, Tab, Typography } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Container,
+  Tab,
+  Typography,
+} from "@mui/material";
 import { useState, SyntheticEvent } from "react";
 import { TabContext, TabList, TabPanel } from "@mui/lab/";
 import Login from "../components/authentication/Login";
@@ -10,21 +16,30 @@ const HomePage = () => {
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
-  const { user, loading }: any = useUser()
+  const { user, loading }: any = useUser();
   if (loading) {
     return (
-      <Container maxWidth="xl" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Container
+        maxWidth="xl"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <CircularProgress />
       </Container>
     );
   }
 
   if (user) {
-    window.location.href = '/chat';
+    window.location.href = "/chat";
     return null; // To prevent rendering the component while redirecting
   }
+
   return (
-    <Container maxWidth="xl" >
+    <Container maxWidth="xl">
       <Box
         sx={{
           display: "flex",
@@ -49,7 +64,11 @@ const HomePage = () => {
       >
         <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <TabList aria-label="lab API tabs example" onChange={handleChange} sx={{ marginBottom: 3 }}>
+            <TabList
+              aria-label="lab API tabs example"
+              onChange={handleChange}
+              sx={{ marginBottom: 3 }}
+            >
               <Tab
                 label="Login"
                 value="1"

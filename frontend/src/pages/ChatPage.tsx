@@ -7,7 +7,7 @@ import ChatBox from '../components/chatUtils/ChatBox'
 const ChatPage = () => {
   const {user,loading}:any = useUser()
   if(loading) return (<div>Loading...</div>)
-  
+  if(!user) window.location.href = '/'
   return (
     <Box sx={{ width: '100vw', height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
     {user && <SideDrawer />}
