@@ -2,9 +2,17 @@ import {
   Avatar,
   Box,
   Button,
+  Divider,
+  Drawer,
   IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -15,8 +23,17 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { deepOrange } from "@mui/material/colors";
 import { useUser } from "../../context/UserContext";
 import ProfileModel from "../Utils/ProfileModel";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import MailIcon from "@mui/icons-material/Mail";
+import axios from "axios";
 
 const SideDrawer = () => {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
+  };
   const { user }: any = useUser();
   const [anchorElNotifications, setAnchorElNotifications] =
     useState<null | HTMLElement>(null);
@@ -47,6 +64,41 @@ const SideDrawer = () => {
       .join("");
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/api/auth/signout"
+      );
+      if (response.data.success) {
+        window.location.href = "/";
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/user/search?search=${search}`
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const DrawerList = (
+    <Box sx={{ width: 250, display: "flex" }} role="presentation">
+      <TextField
+        placeholder="Search by name or email"
+        style={{ marginRight: 2 }}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        variant="outlined"
+      />
+      <Button onClick={handleSearch}>Go</Button>
+    </Box>
+  );
+
   return (
     <>
       <Box
@@ -62,6 +114,7 @@ const SideDrawer = () => {
       >
         <Tooltip title="Search User" placement="right-end">
           <Button
+            onClick={toggleDrawer(true)}
             variant="text"
             sx={{ color: "black", paddingX: 3 }}
             startIcon={<SearchIcon />}
@@ -122,12 +175,15 @@ const SideDrawer = () => {
           >
             {" "}
             <ProfileModel user={user.rest}>
-              <MenuItem >My Profile</MenuItem>
+              <MenuItem>My Profile</MenuItem>
             </ProfileModel>
-            <MenuItem onClick={handleCloseProfile}>Logout</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </div>
       </Box>
+      <Drawer open={open} onClose={toggleDrawer(false)}>
+        {DrawerList}
+      </Drawer>
     </>
   );
 };
