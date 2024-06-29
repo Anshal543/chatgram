@@ -14,6 +14,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { deepOrange } from "@mui/material/colors";
 import { useUser } from "../../context/UserContext";
+import ProfileModel from "../Utils/ProfileModel";
 
 const SideDrawer = () => {
   const { user }: any = useUser();
@@ -93,7 +94,8 @@ const SideDrawer = () => {
               Notification 2
             </MenuItem>
           </Menu>
-          <IconButton sx={{padding: 1, borderRadius: "20%"}}
+          <IconButton
+            sx={{ padding: 1, borderRadius: "20%" }}
             edge="start"
             color="inherit"
             aria-label="profile"
@@ -118,7 +120,10 @@ const SideDrawer = () => {
             open={Boolean(anchorElProfile)}
             onClose={handleCloseProfile}
           >
-            <MenuItem onClick={handleCloseProfile}>My Profile</MenuItem>
+            {" "}
+            <ProfileModel user={user.rest}>
+              <MenuItem >My Profile</MenuItem>
+            </ProfileModel>
             <MenuItem onClick={handleCloseProfile}>Logout</MenuItem>
           </Menu>
         </div>
