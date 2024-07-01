@@ -12,11 +12,12 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  Snackbar,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { MouseEvent, useState } from "react";
+import React, { MouseEvent, useEffect, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -26,10 +27,18 @@ import ProfileModel from "../Utils/ProfileModel";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import axios from "axios";
+import CloseIcon from "@mui/icons-material/Close";
+import ChatLoading from "../Utils/ChatLoading";
+import UserListItem from "../Utils/UserListItem";
 
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [searchResult, setSearchResult] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingChat, setLoadingChat] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
@@ -76,26 +85,77 @@ const SideDrawer = () => {
       console.log(error);
     }
   };
+
+  const handleSnackbarClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+  const accessChat = async (id: string) => {
+  }
+
   const handleSearch = async () => {
+    if (!search) {
+      setSnackbarMessage("Please enter a search term.");
+      setSnackbarOpen(true);
+      return;
+    }
     try {
+      setLoading(true);
       const response = await axios.get(
-        `http://localhost:8080/api/user/search?search=${search}`
+        `${import.meta.env.VITE_BACKEND_URL}/user/?search=${search}`
       );
+      const data = response.data;
+      // setSearchResult(data);
+      setSearchResult(Array.isArray(data) ? data : [data]);
       console.log(response.data);
+      setLoading(false);
     } catch (error) {
-      console.log(error);
+      setSnackbarMessage("Error occurred while searching. Please try again.");
+      setSnackbarOpen(true);
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    console.log("Search Result updated:", searchResult);
+  }, [searchResult]);
+
   const DrawerList = (
-    <Box sx={{ width: 250, display: "flex" }} role="presentation">
-      <TextField
-        placeholder="Search by name or email"
-        style={{ marginRight: 2 }}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        variant="outlined"
-      />
-      <Button onClick={handleSearch}>Go</Button>
+    <Box sx={{ width: 250, marginLeft: 2, paddingY: 2 }} role="presentation">
+      <Typography variant="h5" sx={{ textAlign: "start" }}>
+        Search User
+      </Typography>
+      <Divider />
+      <Box sx={{ display: "flex", marginTop: 1 }}>
+        <TextField
+          placeholder="Search User"
+          style={{ marginRight: 0, padding: 0 }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          variant="standard"
+        />
+        <Button
+          onClick={handleSearch}
+          style={{ color: "black" }}
+          variant="text"
+        >
+          Go
+        </Button>
+      </Box>
+      {loading ? <ChatLoading /> : (
+        <List>
+          {searchResult?.map((data: any) => (
+            <UserListItem key={data._id} data={data}
+            handleFunction={()=>accessChat(data._id)} />
+          ))}
+        </List>
+      )}
     </Box>
   );
 
@@ -184,6 +244,31 @@ const SideDrawer = () => {
       <Drawer open={open} onClose={toggleDrawer(false)}>
         {DrawerList}
       </Drawer>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+        action={
+          <React.Fragment>
+            <Button
+              color="secondary"
+              size="small"
+              onClick={handleSnackbarClose}
+            >
+              UNDO
+            </Button>
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleSnackbarClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
     </>
   );
 };
