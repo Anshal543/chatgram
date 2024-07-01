@@ -6,10 +6,7 @@ import {
   Drawer,
   IconButton,
   List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
+
   Menu,
   MenuItem,
   Snackbar,
@@ -24,8 +21,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { deepOrange } from "@mui/material/colors";
 import { useUser } from "../../context/UserContext";
 import ProfileModel from "../Utils/ProfileModel";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
 import ChatLoading from "../Utils/ChatLoading";

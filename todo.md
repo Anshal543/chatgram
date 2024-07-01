@@ -4,3 +4,4 @@
 + check and clear the input when use signup
 + handle unnecessarry renders
 + turn sideDrawer into multiple component
++ work on ui after completing the project
