@@ -1,12 +1,12 @@
-import { Avatar, Box, Typography } from '@mui/material';
+import { Avatar, Box, Typography } from "@mui/material";
 
-const UserListItem = ({ data, handleFunction }) => {
+const UserListItem = ({ data, handleFunction }): any => {
   return (
     <Box
       onClick={handleFunction}
       sx={{
         cursor: "pointer",
-        "&:hover": { opacity: 0.8 },
+        "&:hover": { opacity: 0.8, background: "#38B2AC", color: "white" },
         marginBottom: 2,
         paddingX: 2,
         paddingY: 2,
@@ -17,7 +17,6 @@ const UserListItem = ({ data, handleFunction }) => {
         alignItems: "center",
         borderRadius: "8px",
         transition: "background 0.3s, color 0.3s",
-        "&:hover": { background: "#38B2AC", color: "white" }
       }}
     >
       <Avatar
