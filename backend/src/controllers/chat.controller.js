@@ -31,7 +31,7 @@ export const accessChat = asyncHandler(async (req, res) => {
         };
         try {
             const createdChat = await Chat.create(chatData);
-            const allChat = await Chat.findById(createdChat._id).populate(
+            const allChat = await Chat.findOne({_id:createdChat._id}).populate(
                 "users",
                 "-password"
             );

@@ -8,7 +8,7 @@ interface ChatContextProviderProps {
 
 const ChatContextProvider = ({ children }: ChatContextProviderProps) => {
     const [notification, setNotification] = useState([]);
-    const [chats, setChats] = useState();
+    const [chats, setChats] = useState([]);
     const [selectedChat, setSelectedChat] = useState();
 
     return (

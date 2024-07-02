@@ -310,7 +310,7 @@ const SideDrawer = () => {
   const { selectedChat, setSelectedChat, chats, setChats }: any = useChat();
   const [ChatLoading, setChatLoading] = useState(false);
   const { user }: any = useUser();
-
+  console.log("user",user.rest._id);
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
@@ -320,16 +320,18 @@ const SideDrawer = () => {
     setSnackbarOpen(true);
   };
 
-  const handleChatAccess = async (userID: string) => {
+  const handleChatAccess = async (userId: any) => {
     try {
       setChatLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/chat`,
-        { userId: userID }
+        { userId: userId }
       );
       const data = response.data;
-      if(!chats.find((chat: any) => chat._id === data._id)) {
-        setChats([...chats, data]);
+      console.log(data);
+      if(chats.find((chat: any) => chat._id !== data._id)) {
+        setChats([ data,...chats,]);
+        console.log(chats);
       }
       setSelectedChat(data);
       setChatLoading(false);

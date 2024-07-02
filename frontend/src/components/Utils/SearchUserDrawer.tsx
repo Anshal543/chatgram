@@ -1,6 +1,7 @@
 import {
     Box,
     Button,
+    CircularProgress,
     Divider,
     Drawer,
     List,
@@ -18,6 +19,7 @@ import {
     toggleDrawer,
     handleSnackbar,
     handleChatAccess,
+    loadingChat
   }: any) => {
     const [search, setSearch] = useState("");
     const [searchResult, setSearchResult] = useState<any[]>([]);
@@ -74,6 +76,7 @@ import {
               ))}
             </List>
           )}
+          {loadingChat && <CircularProgress size={40} thickness={2} color="primary" />}
         </Box>
       </Drawer>
     );
