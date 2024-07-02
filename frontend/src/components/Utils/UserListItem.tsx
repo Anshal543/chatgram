@@ -1,6 +1,6 @@
 import { Avatar, Box, Typography } from "@mui/material";
 
-const UserListItem = ({ data, handleFunction }): any => {
+const UserListItem = ({ data, handleFunction }:any)=> {
   return (
     <Box
       onClick={handleFunction}

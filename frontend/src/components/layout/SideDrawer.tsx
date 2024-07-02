@@ -301,6 +301,7 @@ import ProfileMenu from "../Utils/ProfileMenu";
 import NotificationsMenu from "../Utils/NotificationsMenu";
 import axios from "axios";
 import { useChat } from "../../context/ChatContext";
+import { useUser } from "../../context/UserContext";
 
 const SideDrawer = () => {
   const [open, setOpen] = useState(false);
@@ -308,6 +309,7 @@ const SideDrawer = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const { selectedChat, setSelectedChat, chats, setChats }: any = useChat();
   const [ChatLoading, setChatLoading] = useState(false);
+  const { user }: any = useUser();
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
@@ -323,11 +325,15 @@ const SideDrawer = () => {
       setChatLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/chat`,
-        { userID: userID }
+        { userId: userID }
       );
       const data = response.data;
+      if(!chats.find((chat: any) => chat._id === data._id)) {
+        setChats([...chats, data]);
+      }
       setSelectedChat(data);
       setChatLoading(false);
+      toggleDrawer(false)();
     } catch (error) {
       handleSnackbar("Error occurred while accessing chat. Please try again.");
       setChatLoading(false);
@@ -369,7 +375,8 @@ const SideDrawer = () => {
         open={open}
         toggleDrawer={toggleDrawer}
         handleSnackbar={handleSnackbar}
-        handleChatAccess={handleChatAccess}
+        handleChatAccess={()=>handleChatAccess(user.rest._id)}
+        loadingChat={ChatLoading}
       />
       <Snackbar
         open={snackbarOpen}
