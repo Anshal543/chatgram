@@ -7,6 +7,7 @@ import { deepOrange } from "@mui/material/colors";
 import AddIcon from "@mui/icons-material/Add";
 import ChatLoading from "../Utils/ChatLoading";
 import { getSender } from "../../config/ChatLogics";
+import GroupChatModel from "../Utils/GroupChatModel";
 
 const MyChats = () => {
   const { selectedChat, setSelectedChat, chats, setChats }: any = useChat();
@@ -38,7 +39,7 @@ const MyChats = () => {
   }, []);
 
   useEffect(() => {
-  console.log("Updated chats state:", chats); // Log the updated chats state
+    console.log("Updated chats state:", chats);
   }, [chats]);
 
   return (
@@ -71,18 +72,20 @@ const MyChats = () => {
           }}
         >
           My Chats
-          <Button
-            sx={{
-              display: "flex",
-              fontSize: { xs: "17px", md: "17px", lg: "17px" },
-              fontFamily: "Work sans",
-              backgroundColor: "#e8eaf6",
-              color: "black",
-            }}
-            endIcon={<AddIcon />}
-          >
-            Create Group
-          </Button>
+          <GroupChatModel>
+            <Button
+              sx={{
+                display: "flex",
+                fontSize: { xs: "17px", md: "17px", lg: "17px" },
+                fontFamily: "Work sans",
+                backgroundColor: "#e8eaf6",
+                color: "black",
+              }}
+              endIcon={<AddIcon />}
+            >
+              Create Group
+            </Button>
+          </GroupChatModel>
         </Box>
         <Box
           sx={{
@@ -117,10 +120,9 @@ const MyChats = () => {
                   onClick={() => setSelectedChat(chat)}
                 >
                   <Typography>
-                    {!chat.isGroupChat?(
-                      getSender(loggedInUser, chat.users)
-                    ):(chat.chatName)}
-                    {/* {chat.chatName} */}
+                    {!chat.isGroupChat
+                      ? getSender(loggedInUser, chat.users)
+                      : chat.chatName}
                   </Typography>
                 </Box>
               ))}
