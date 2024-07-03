@@ -310,7 +310,7 @@ const SideDrawer = () => {
   const { selectedChat, setSelectedChat, chats, setChats }: any = useChat();
   const [ChatLoading, setChatLoading] = useState(false);
   const { user }: any = useUser();
-  console.log("user",user.rest._id);
+  // console.log("user",user.rest._id);
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
@@ -329,13 +329,12 @@ const SideDrawer = () => {
       );
       const data = response.data;
       console.log(data);
-      if(chats.find((chat: any) => chat._id !== data._id)) {
-        setChats([ data,...chats,]);
-        console.log(chats);
+      if (!chats.find((chat: any) => chat._id === data._id)) {
+        setChats([data, ...chats]);
       }
       setSelectedChat(data);
       setChatLoading(false);
-      toggleDrawer(false)();
+      setOpen(false);
     } catch (error) {
       handleSnackbar("Error occurred while accessing chat. Please try again.");
       setChatLoading(false);
@@ -377,7 +376,7 @@ const SideDrawer = () => {
         open={open}
         toggleDrawer={toggleDrawer}
         handleSnackbar={handleSnackbar}
-        handleChatAccess={()=>handleChatAccess(user.rest._id)}
+        handleChatAccess={handleChatAccess}
         loadingChat={ChatLoading}
       />
       <Snackbar

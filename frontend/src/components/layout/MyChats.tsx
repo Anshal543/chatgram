@@ -9,8 +9,8 @@ import ChatLoading from "../Utils/ChatLoading";
 import { getSender } from "../../config/ChatLogics";
 
 const MyChats = () => {
-  const { selectedChat, setSelectedChat, chats, setChats }:any = useChat();
-  const { user }:any = useUser();
+  const { selectedChat, setSelectedChat, chats, setChats }: any = useChat();
+  const { user }: any = useUser();
   const [loggedInUser, setLoggedInUser] = useState();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -26,9 +26,7 @@ const MyChats = () => {
         `${import.meta.env.VITE_BACKEND_URL}/chat`
       );
       const data = response.data;
-      console.log(response.data);
-      setChats(data) ;
-      console.log(chats);
+      setChats(Array.isArray(data) ? data : []);
     } catch (error) {
       handleSnackbar("Error occurred while fetching chats. Please try again.");
     }
@@ -40,7 +38,7 @@ const MyChats = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Updated chats state:", chats); // Log the updated chats state
+  console.log("Updated chats state:", chats); // Log the updated chats state
   }, [chats]);
 
   return (
@@ -122,6 +120,7 @@ const MyChats = () => {
                     {!chat.isGroupChat?(
                       getSender(loggedInUser, chat.users)
                     ):(chat.chatName)}
+                    {/* {chat.chatName} */}
                   </Typography>
                 </Box>
               ))}

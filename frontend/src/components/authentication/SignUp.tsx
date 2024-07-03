@@ -147,7 +147,7 @@ const SignUp = () => {
     try {
       const signup = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/signup`, data);
       if (signup) {
-        console.log("User created successfully", signup.data);
+        // console.log("User created successfully", signup.data);
         
       }
     } catch (error) {

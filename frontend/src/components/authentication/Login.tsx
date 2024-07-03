@@ -45,7 +45,7 @@ const Login = () => {
       const login = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/signin`, data);
 
       if (login) {
-        console.log("User logged in successfully", login.data);
+        // console.log("User logged in successfully", login.data);
         // navigate('/chat');
         window.location.href = '/chat';
       }
