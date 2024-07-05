@@ -1,7 +1,17 @@
-import { Box, Button, Modal, Snackbar, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  FormControl,
+  Input,
+  Modal,
+  Snackbar,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React, { ReactNode, useState } from "react";
 import { useChat } from "../../context/ChatContext";
 import { useUser } from "../../context/UserContext";
+import axios from "axios";
 
 const style = {
   position: "absolute" as "absolute",
@@ -15,19 +25,36 @@ const style = {
   p: 4,
 };
 
-const GroupChatModel = ({ children }:any) => {
+const GroupChatModel = ({ children }: any) => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [groupChatName, setGroupChatName] = useState("");
-  const [selectedUsers, setSelectedUsers] = useState([])
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const { user }: any = useUser();
-    const { chats, setChats }: any = useChat();
+  const { chats, setChats }: any = useChat();
+
+  const handleSearch = async (e) => {
+    setSearch(e);
+    if (!e) {
+      return;
+    }
+    try {
+      setLoading(true);
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/user?search=${search}`
+      );
+      setLoading(false);
+      setSearchResult(data);
+    } catch (error) {}
+  };
+
+  const handleSubmit = async () => {};
 
   return (
     <div>
@@ -39,12 +66,43 @@ const GroupChatModel = ({ children }:any) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
+          <Typography
+            id="modal-modal-title"
+            variant="h6"
+            component="h2"
+            sx={{
+              fontSize: "35px",
+              fontFamily: "Work sans",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            Create Group
           </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginTop: "20px",
+            }}
+          >
+            <FormControl>
+              <TextField
+                placeholder="chat name"
+                sx={{ marginBottom: 3 }}
+                onChange={(e) => setGroupChatName(e.target.value)}
+              />
+            </FormControl>
+            <FormControl>
+              <TextField
+                placeholder="add users"
+                sx={{ marginBottom: 1 }}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+            </FormControl>
+            <Button onClick={handleSubmit}>Button</Button>
+          </Box>
         </Box>
       </Modal>
       <Snackbar
