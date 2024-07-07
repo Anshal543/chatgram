@@ -8,10 +8,17 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { ReactNode, useState } from "react";
+import React, {
+  ChangeEvent,
+  FormEvent,
+  ReactNode,
+  SyntheticEvent,
+  useState,
+} from "react";
 import { useChat } from "../../context/ChatContext";
 import { useUser } from "../../context/UserContext";
 import axios from "axios";
+import UserListItem from "./UserListItem";
 
 const style = {
   position: "absolute" as "absolute",
@@ -25,12 +32,12 @@ const style = {
   p: 4,
 };
 
-const GroupChatModel = ({ children }: any) => {
+const GroupChatModel = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [groupChatName, setGroupChatName] = useState("");
-  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState<any>([]);
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -39,7 +46,16 @@ const GroupChatModel = ({ children }: any) => {
   const { user }: any = useUser();
   const { chats, setChats }: any = useChat();
 
-  const handleSearch = async (e) => {
+  const handleGroup = async (user: any) => {
+    if(selectedUsers.includes(user)) {
+      setSnackbarOpen(true);
+      setSnackbarMessage("User already added");
+      return;
+    }
+    setSelectedUsers([...selectedUsers, user]);
+  };
+
+  const handleSearch = async (e: any) => {
     setSearch(e);
     if (!e) {
       return;
@@ -49,9 +65,14 @@ const GroupChatModel = ({ children }: any) => {
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/user?search=${search}`
       );
+      console.log(data);
       setLoading(false);
       setSearchResult(data);
-    } catch (error) {}
+    } catch (error) {
+      setLoading(false);
+      setSnackbarOpen(true);
+      setSnackbarMessage("Something went wrong");
+    }
   };
 
   const handleSubmit = async () => {};
@@ -101,6 +122,21 @@ const GroupChatModel = ({ children }: any) => {
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </FormControl>
+            {loading ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              searchResult
+                .slice(0, 2)
+                .map((user: any) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    selectedUsers={selectedUsers}
+                    setSelectedUsers={setSelectedUsers}
+                    handleFunction={() => handleGroup({ user })}
+                  />
+                ))
+            )}
             <Button onClick={handleSubmit}>Button</Button>
           </Box>
         </Box>

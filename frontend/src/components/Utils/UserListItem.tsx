@@ -1,6 +1,6 @@
 import { Avatar, Box, Typography } from "@mui/material";
 
-const UserListItem = ({ data, handleFunction }:any)=> {
+const UserListItem = ({  user, handleFunction }:any)=> {
   return (
     <Box
       onClick={handleFunction}
@@ -21,14 +21,14 @@ const UserListItem = ({ data, handleFunction }:any)=> {
     >
       <Avatar
         sx={{ marginRight: 2 }}
-        alt={data.username}
-        src={data.profilePic}
+        alt={user?.username}
+        src={user?.profilePic}
       />
       <Box>
-        <Typography>{data.username}</Typography>
+        <Typography>{user?.username}</Typography>
         <Typography fontSize="small">
           <b>Email: </b>
-          {data.email}
+          {user?.email}
         </Typography>
       </Box>
     </Box>
