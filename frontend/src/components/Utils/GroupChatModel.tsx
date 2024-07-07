@@ -19,6 +19,7 @@ import { useChat } from "../../context/ChatContext";
 import { useUser } from "../../context/UserContext";
 import axios from "axios";
 import UserListItem from "./UserListItem";
+import UserBadgeItem from "./UserBadgeItem";
 
 const style = {
   position: "absolute" as "absolute",
@@ -37,7 +38,7 @@ const GroupChatModel = ({ children }: { children: ReactNode }) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [groupChatName, setGroupChatName] = useState("");
-  const [selectedUsers, setSelectedUsers] = useState<any>([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -46,8 +47,8 @@ const GroupChatModel = ({ children }: { children: ReactNode }) => {
   const { user }: any = useUser();
   const { chats, setChats }: any = useChat();
 
-  const handleGroup = async (user: any) => {
-    if(selectedUsers.includes(user)) {
+  const handleGroup = (user: any) => {
+    if (selectedUsers.some((selectedUser) => selectedUser._id === user._id)) {
       setSnackbarOpen(true);
       setSnackbarMessage("User already added");
       return;
@@ -75,7 +76,35 @@ const GroupChatModel = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    if(!groupChatName || selectedUsers.length < 1) {
+      setSnackbarOpen(true);
+      setSnackbarMessage("Please fill all fields");
+      return;
+    }
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/chat/group`,
+        {
+          chatName: groupChatName,
+          users: selectedUsers.map((user: any) => user._id),
+        
+        }
+      );
+      setChats([...chats, data]);
+      setSnackbarOpen(true);
+      setSnackbarMessage("Chat created successfully");
+      handleClose();
+    } catch (error) {
+      setSnackbarOpen(true);
+      setSnackbarMessage("Something went wrong");
+    }
+  };
+  const handleDelete = (user: any) => {
+    setSelectedUsers(
+      selectedUsers.filter((selectedUser) => selectedUser !== user)
+    );
+  };
 
   return (
     <div>
@@ -108,6 +137,16 @@ const GroupChatModel = ({ children }: { children: ReactNode }) => {
               marginTop: "20px",
             }}
           >
+            {" "}
+            <Box display={"flex"} width={"100%"} flexWrap={"wrap"}>
+              {selectedUsers.map((user: any) => (
+                <UserBadgeItem
+                  key={user._id}
+                  user={user}
+                  handleFunction={() => handleDelete(user)}
+                />
+              ))}
+            </Box>
             <FormControl>
               <TextField
                 placeholder="chat name"
@@ -133,7 +172,7 @@ const GroupChatModel = ({ children }: { children: ReactNode }) => {
                     user={user}
                     selectedUsers={selectedUsers}
                     setSelectedUsers={setSelectedUsers}
-                    handleFunction={() => handleGroup({ user })}
+                    handleFunction={() => handleGroup(user)}
                   />
                 ))
             )}
