@@ -3,6 +3,8 @@ import { useChat } from "../../context/ChatContext";
 import { useUser } from "../../context/UserContext";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { getSender,getSenderFull } from "../../config/ChatLogics";
+import ProfileModel from "./ProfileModel";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -38,10 +40,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
               <>
                 <Typography>
                   {
-                    selectedChat.users.find((u: any) => u._id !== user?._id)
-                      .username
-                  }
+                    // selectedChat.users.find((u: any) => u._id !== user?._id)
+                    //   .username
+                    getSender(user, selectedChat.users)
+                }
                 </Typography>
+                <ProfileModel user={getSenderFull(user,selectedChat.users)}/>
               </>
             ) : (
               <Typography>{selectedChat.chatName.toUpperCase()}</Typography>
