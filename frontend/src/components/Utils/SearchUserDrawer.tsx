@@ -74,7 +74,7 @@ const SearchUserDrawer = ({
             {searchResult?.map((user: any) => (
               <UserListItem
                 key={user._id}
-                data={user}
+                user={user}
                 handleFunction={() => handleChatAccess(user._id)}
               />
             ))}

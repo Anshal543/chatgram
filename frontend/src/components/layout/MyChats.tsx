@@ -9,7 +9,11 @@ import ChatLoading from "../Utils/ChatLoading";
 import { getSender } from "../../config/ChatLogics";
 import GroupChatModel from "../Utils/GroupChatModel";
 
-const MyChats = () => {
+interface MyChatsProps {
+  fetchAgain: boolean;
+}
+
+const MyChats = ({fetchAgain}:MyChatsProps) => {
   const { selectedChat, setSelectedChat, chats, setChats }: any = useChat();
   const { user }: any = useUser();
   const [loggedInUser, setLoggedInUser] = useState();
@@ -36,7 +40,7 @@ const MyChats = () => {
   useEffect(() => {
     setLoggedInUser(user);
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   useEffect(() => {
     console.log("Updated chats state:", chats);

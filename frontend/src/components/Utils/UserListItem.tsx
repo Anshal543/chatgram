@@ -1,6 +1,7 @@
 import { Avatar, Box, Typography } from "@mui/material";
 
 const UserListItem = ({  user, handleFunction }:any)=> {
+  console.log(user);
   return (
     <Box
       onClick={handleFunction}

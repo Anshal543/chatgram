@@ -3,9 +3,12 @@ import SideDrawer from "../components/layout/SideDrawer";
 import { Box } from "@mui/material";
 import MyChats from "../components/layout/MyChats";
 import ChatBox from "../components/layout/ChatBox";
+import { useState } from "react";
 
 const ChatPage = () => {
   const { user, loading }: any = useUser();
+  const [fetchAgain, setFetchAgain] = useState<boolean>(false);
+
   if (loading) return <div>Loading...</div>;
   if (!user) window.location.href = "/";
   return (
@@ -20,8 +23,8 @@ const ChatPage = () => {
           padding: "10px",
         }}
       >
-        {user && <MyChats />}
-        {user && <ChatBox />}
+        {user && <MyChats   fetchAgain={fetchAgain} />}
+        {user && <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />}
       </Box>
     </div>
   );
