@@ -3,8 +3,9 @@ import { useChat } from "../../context/ChatContext";
 import { useUser } from "../../context/UserContext";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { getSender,getSenderFull } from "../../config/ChatLogics";
+import { getSender, getSenderFull } from "../../config/ChatLogics";
 import ProfileModel from "./ProfileModel";
+import UpdateGroupChatModel from "../layout/UpdateGroupChatModel";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -12,7 +13,7 @@ interface SingleChatProps {
 }
 
 const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
-  const { user }:any = useUser();
+  const { user }: any = useUser();
   const { selectedChat, setSelectedChat }: any = useChat();
   return (
     <>
@@ -43,14 +44,32 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
                     // selectedChat.users.find((u: any) => u._id !== user?._id)
                     //   .username
                     getSender(user, selectedChat.users)
-                }
+                  }
                 </Typography>
-                <ProfileModel user={getSenderFull(user,selectedChat.users)}/>
+                <ProfileModel user={getSenderFull(user, selectedChat.users)} />
               </>
             ) : (
-              <Typography>{selectedChat.chatName.toUpperCase()}</Typography>
+              <>
+                <Typography>{selectedChat.chatName.toUpperCase()}</Typography>
+                <UpdateGroupChatModel
+                  fetchAgain={fetchAgain}
+                  setFetchAgain={setFetchAgain}
+                />
+              </>
             )}
           </Typography>
+          <Box
+            display={"flex"}
+            flexDirection={"column"}
+            justifyContent={"flex-end"}
+            p={3}
+            bgcolor={"#e8e8e8"}
+            height={"100%"}
+            width={"100%"}
+            sx={{ overflowY: "hidden", borderRadius: "lg" }}
+          >
+            {/* {"messeges here"} */}
+          </Box>
         </>
       ) : (
         <Box
