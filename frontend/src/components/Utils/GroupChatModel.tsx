@@ -66,7 +66,7 @@ const GroupChatModel = ({ children }: { children: ReactNode }) => {
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/user?search=${search}`
       );
-      console.log(data);
+      // console.log(data);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {

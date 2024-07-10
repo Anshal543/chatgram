@@ -9,12 +9,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useChat } from "../../context/ChatContext";
 import UserBadgeItem from "../Utils/UserBadgeItem";
 import axios from "axios";
 import { LoadingButton } from "@mui/lab";
+import UserListItem from "../Utils/UserListItem";
+import { useUser } from "../../context/UserContext";
 
 const style = {
   position: "absolute" as "absolute",
@@ -40,6 +42,9 @@ interface SearchResultType {
   profilePic: string;
 }
 
+interface grouupAdminType {
+  _id: string
+}
 const UpdateGroupChatModel = ({
   fetchAgain,
   setFetchAgain,
@@ -47,17 +52,77 @@ const UpdateGroupChatModel = ({
   const [open, setOpen] = React.useState(false);
   const [groupChatName, setGroupChatName] = React.useState("");
   const [search, setSearch] = useState<string>("");
-  const [searchResult, setSearchResult] = useState<SearchResultType[]>([]);
+  const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [renameloading, setRenameLoading] = useState(false);
   const { selectedChat, setSelectedChat }: any = useChat();
+  const { user }: any = useUser();
+  // console.log(user);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  // console.log(selectedChat);
+  // console.log(selectedChat.groupAdmin._id );
+  // console.log(user._id);
 
-  const handleRemove = (user: any) => {};
+  const handleRemove = async(user1: any) => {
+    if(selectedChat.groupAdmin._id !== user.rest._id && user1._id !== user.rest._id){
+      setSnackbarOpen(true);
+      setSnackbarMessage("Only Group Admin can remove users from the group chat");
+      return;
+    }
+    try {
+      // API call to remove user from group chat
+      setLoading(true);
+      const { data } = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/chat/group/remove`,
+        { chatId: selectedChat._id, userId: user1._id }
+      );
+      user1._id === user.rest._id ? setSelectedChat():setSelectedChat(data);
+      setFetchAgain(!fetchAgain);
+      setSnackbarOpen(true);
+      setSnackbarMessage("User Removed from Group Successfully");
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      setSnackbarOpen(true);
+      setSnackbarMessage("Error Removing User from Group");
+    }
+  };
+  const handleAddUser = async (user1: any) => {
+    if (selectedChat.users.find((u: any) => u._id === user1._id)) {
+      setSnackbarOpen(true);
+      setSnackbarMessage("User already in the group chat");
+      return;
+    }
+    if (selectedChat.groupAdmin._id !== user.rest._id) {
+      setSnackbarOpen(true);
+      setSnackbarMessage("Only Group Admin can add users to the group chat");
+      return;
+    }
+
+    try {
+      // API call to add user to group chat
+      setLoading(true);
+
+      const { data } = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/chat/group/add`,
+        { chatId: selectedChat._id, userId: user1._id }
+      );
+      setSelectedChat(data);
+      setFetchAgain(!fetchAgain);
+      setSnackbarOpen(true);
+      setSnackbarMessage("User Added to Group Successfully");
+
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      setSnackbarOpen(true);
+      setSnackbarMessage("Error Adding User to Group");
+    }
+  };
   const handleRename = async () => {
     if (groupChatName === "") {
       setSnackbarOpen(true);
@@ -102,6 +167,31 @@ const UpdateGroupChatModel = ({
     } catch (error) {
       setSnackbarMessage("Error occurred while searching. Please try again.");
       setLoading(false);
+    }
+  };
+
+  const handleLeaveGroup = async (user: any) => {
+    if (selectedChat.groupAdmin._id === user.rest._id) {
+      setSnackbarOpen(true);
+      setSnackbarMessage("Group Admin cannot leave the group chat");
+      return;
+    }
+    try {
+      // API call to leave group chat
+      setLoading(true);
+      const { data } = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/chat/group/leave`,
+        { chatId: selectedChat._id }
+      );
+      setSelectedChat();
+      setFetchAgain(!fetchAgain);
+      setSnackbarOpen(true);
+      setSnackbarMessage("Left Group Chat Successfully");
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      setSnackbarOpen(true);
+      setSnackbarMessage("Error Leaving Group Chat");
     }
   };
   return (
@@ -168,22 +258,18 @@ const UpdateGroupChatModel = ({
               onChange={(e) => handleSearch(e.target.value)}
             />
           </FormControl>
-          {
-            loading ? (
-              <CircularProgress />
-            ):(
-              <Box display={"flex"} flexWrap={"wrap"} pb={3} width={"100%"}>
-                {searchResult?.map((user: any) => (
-                  <UserBadgeItem
-                    user={user}
-                    key={user._id}
-                    handleFunction={() => handleRemove(user)}
-                  />
-                ))}
-              </Box>
-            )
-          }
-          <Button onClick={() => handleRemove(user)}>Leave Group</Button>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            searchResult?.map((user: any) => (
+              <UserListItem
+                key={user._id}
+                user={user}
+                handleFunction={() => handleAddUser(user)}
+              />
+            ))
+          )}
+          <Button onClick={() => handleLeaveGroup(user)}>Leave Group</Button>
         </Box>
       </Modal>
       <Snackbar

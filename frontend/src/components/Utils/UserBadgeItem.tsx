@@ -25,7 +25,6 @@ const UserBadgeItem: FC<UserBadgeItemProps> = ({ user, handleFunction }) => {
       }}
       onClick={handleFunction}
     >
-       { console.log(user)}
         {user.username}
         <CloseIcon  />
     </Box>
