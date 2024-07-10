@@ -15,18 +15,19 @@ const UserBadgeItem: FC<UserBadgeItemProps> = ({ user, handleFunction }) => {
         paddingY: 1,
         borderRadius: "lg",
         margin: 1,
-        marginBottom: 2,
-        fontSize: 12,
+        marginBottom: 1,
+        fontSize: 14,
         color: "purple",
         cursor: "pointer",
         display: "flex",
+        justifyContent: "center",
 
       }}
       onClick={handleFunction}
     >
        { console.log(user)}
         {user.username}
-        <CloseIcon />
+        <CloseIcon  />
     </Box>
   );
 };
