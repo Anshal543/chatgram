@@ -14,7 +14,7 @@ const style = {
   p: 4,
 };
 
-const ProfileModel = ({ user, children }: { user: any, children: React.ReactNode }) => {
+const ProfileModel = ({ user, children }: { user: any, children?: React.ReactNode }) => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);

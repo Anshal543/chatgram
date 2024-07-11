@@ -1,11 +1,21 @@
-import React from "react";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import {
+  Box,
+  CircularProgress,
+  FormControl,
+  IconButton,
+  Snackbar,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React, { useState } from "react";
+import { getSender, getSenderFull } from "../../config/ChatLogics";
 import { useChat } from "../../context/ChatContext";
 import { useUser } from "../../context/UserContext";
-import { Box, Button, IconButton, Typography } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { getSender, getSenderFull } from "../../config/ChatLogics";
-import ProfileModel from "./ProfileModel";
 import UpdateGroupChatModel from "../layout/UpdateGroupChatModel";
+import ProfileModel from "./ProfileModel";
+import axios from "axios";
+import ScrollableChat from "./ScrollableChat";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -15,6 +25,62 @@ interface SingleChatProps {
 const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const { user }: any = useUser();
   const { selectedChat, setSelectedChat }: any = useChat();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const [messages, setMessages] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [newMessage, setNewMessage] = React.useState<string>("");
+
+  const fetchMessages = async () => {
+    if (!selectedChat) return;
+    try {
+      setLoading(true);
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/message/${selectedChat._id}`
+      );
+      console.log(data);
+      setMessages(data);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setSnackbarOpen(true);
+      setSnackbarMessage("Failed to fetch messages");
+    }
+  };
+
+  React.useEffect(() => {
+    fetchMessages();
+  }, [selectedChat]);
+
+  const handleSendMessage = async (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === "Enter" && newMessage !== "") {
+      console.log("Sending message");
+      try {
+        const { data } = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/message/`,
+          {
+            chatId: selectedChat._id,
+            content: newMessage,
+          }
+        );
+        console.log(data);
+        setNewMessage("");
+        setMessages([...messages, data]);
+        // setFetchAgain(!fetchAgain);
+      } catch (error) {
+        console.log(error);
+        setSnackbarOpen(true);
+        setSnackbarMessage("Failed to send message");
+      }
+    }
+  };
+  const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    // TODO: typing indicator
+  };
   return (
     <>
       {selectedChat ? (
@@ -43,10 +109,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
                   {
                     // selectedChat.users.find((u: any) => u._id !== user?._id)
                     //   .username
-                    getSender(user, selectedChat.users)
+                    getSender(user.rest, selectedChat.users)
                   }
                 </Typography>
-                <ProfileModel user={getSenderFull(user, selectedChat.users)} />
+                <ProfileModel
+                  user={getSenderFull(user.rest, selectedChat.users)}
+                />
               </>
             ) : (
               <>
@@ -54,6 +122,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
                 <UpdateGroupChatModel
                   fetchAgain={fetchAgain}
                   setFetchAgain={setFetchAgain}
+                  fetchMessages = {fetchMessages}
                 />
               </>
             )}
@@ -68,7 +137,28 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
             width={"100%"}
             sx={{ overflowY: "hidden", borderRadius: "lg" }}
           >
-            {/* {"messeges here"} */}
+            {loading ? (
+              <CircularProgress
+                size={"5rem"}
+                sx={{ alignSelf: "center", margin: "auto" }}
+              />
+            ) : (
+              <Box
+                display={"flex"}
+                flexDirection={"column"}
+                sx={{ overflowY: "scroll", scrollbarWidth: "none" }}
+              >
+                <ScrollableChat messages = {messages} />
+              </Box>
+            )}
+            <TextField
+              required
+              sx={{ mt: 3 }}
+              onKeyDown={handleSendMessage}
+              placeholder="Type a message"
+              onChange={typingHandler}
+              value={newMessage}
+            />
           </Box>
         </>
       ) : (
@@ -86,6 +176,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
           </Typography>
         </Box>
       )}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </>
   );
 };

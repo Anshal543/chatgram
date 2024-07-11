@@ -38,13 +38,12 @@ const MyChats = ({fetchAgain}:MyChatsProps) => {
   };
 
   useEffect(() => {
-    setLoggedInUser(user);
+    setLoggedInUser(user.rest);
     fetchChats();
   }, [fetchAgain]);
 
-  useEffect(() => {
-    console.log("Updated chats state:", chats);
-  }, [chats]);
+  // useEffect(() => {
+  // }, [chats]);
 
   return (
     <>

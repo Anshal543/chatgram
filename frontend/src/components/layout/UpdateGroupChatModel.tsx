@@ -1,3 +1,5 @@
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
   Button,
@@ -9,14 +11,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import { useChat } from "../../context/ChatContext";
-import UserBadgeItem from "../Utils/UserBadgeItem";
 import axios from "axios";
-import { LoadingButton } from "@mui/lab";
-import UserListItem from "../Utils/UserListItem";
+import React, { useState } from "react";
+import { useChat } from "../../context/ChatContext";
 import { useUser } from "../../context/UserContext";
+import UserBadgeItem from "../Utils/UserBadgeItem";
+import UserListItem from "../Utils/UserListItem";
 
 const style = {
   position: "absolute" as "absolute",
@@ -33,6 +33,7 @@ const style = {
 interface UpdateGroupChatModelProps {
   fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchMessages: () => void;
 }
 
 interface SearchResultType {
@@ -42,17 +43,18 @@ interface SearchResultType {
   profilePic: string;
 }
 
-interface grouupAdminType {
-  _id: string
-}
+// interface grouupAdminType {
+//   _id: string
+// }
 const UpdateGroupChatModel = ({
   fetchAgain,
   setFetchAgain,
+  fetchMessages,
 }: UpdateGroupChatModelProps) => {
   const [open, setOpen] = React.useState(false);
   const [groupChatName, setGroupChatName] = React.useState("");
   const [search, setSearch] = useState<string>("");
-  const [searchResult, setSearchResult] = useState([]);
+  const [searchResult, setSearchResult] = useState<SearchResultType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [renameloading, setRenameLoading] = useState(false);
   const { selectedChat, setSelectedChat }: any = useChat();
@@ -67,10 +69,15 @@ const UpdateGroupChatModel = ({
   // console.log(selectedChat.groupAdmin._id );
   // console.log(user._id);
 
-  const handleRemove = async(user1: any) => {
-    if(selectedChat.groupAdmin._id !== user.rest._id && user1._id !== user.rest._id){
+  const handleRemove = async (user1: any) => {
+    if (
+      selectedChat.groupAdmin._id !== user.rest._id &&
+      user1._id !== user.rest._id
+    ) {
       setSnackbarOpen(true);
-      setSnackbarMessage("Only Group Admin can remove users from the group chat");
+      setSnackbarMessage(
+        "Only Group Admin can remove users from the group chat"
+      );
       return;
     }
     try {
@@ -80,8 +87,9 @@ const UpdateGroupChatModel = ({
         `${import.meta.env.VITE_BACKEND_URL}/chat/group/remove`,
         { chatId: selectedChat._id, userId: user1._id }
       );
-      user1._id === user.rest._id ? setSelectedChat():setSelectedChat(data);
+      user1._id === user.rest._id ? setSelectedChat() : setSelectedChat(data);
       setFetchAgain(!fetchAgain);
+      fetchMessages();
       setSnackbarOpen(true);
       setSnackbarMessage("User Removed from Group Successfully");
       setLoading(false);
@@ -162,7 +170,7 @@ const UpdateGroupChatModel = ({
         `${import.meta.env.VITE_BACKEND_URL}/user/?search=${search}`
       );
       const data = response.data;
-      setSearchResult(Array.isArray(data) ? data : [data]);
+      setSearchResult(data);
       setLoading(false);
     } catch (error) {
       setSnackbarMessage("Error occurred while searching. Please try again.");
@@ -179,10 +187,9 @@ const UpdateGroupChatModel = ({
     try {
       // API call to leave group chat
       setLoading(true);
-      const { data } = await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/chat/group/leave`,
-        { chatId: selectedChat._id }
-      );
+      await axios.put(`${import.meta.env.VITE_BACKEND_URL}/chat/group/leave`, {
+        chatId: selectedChat._id,
+      });
       setSelectedChat();
       setFetchAgain(!fetchAgain);
       setSnackbarOpen(true);
