@@ -6,7 +6,7 @@ import { Avatar, Tooltip } from "@mui/material";
 const ScrollableChat = ({ messages }: any) => {
   const { user }: any = useUser();
   return (
-    <div>
+    <ScrollableFeed>
       {messages &&
         messages.map((m: any, i: number) => (
           <div style={{ display: "flex" }} key={m._id}>
@@ -40,7 +40,7 @@ const ScrollableChat = ({ messages }: any) => {
             </span>
           </div>
         ))}
-    </div>
+    </ScrollableFeed>
   );
 };
 
