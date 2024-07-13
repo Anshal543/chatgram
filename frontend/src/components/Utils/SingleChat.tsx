@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getSender, getSenderFull } from "../../config/ChatLogics";
 import { useChat } from "../../context/ChatContext";
 import { useUser } from "../../context/UserContext";
@@ -16,11 +16,16 @@ import UpdateGroupChatModel from "../layout/UpdateGroupChatModel";
 import ProfileModel from "./ProfileModel";
 import axios from "axios";
 import ScrollableChat from "./ScrollableChat";
+import { io } from "socket.io-client";
 
 interface SingleChatProps {
   fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+// const ENDPOINT = "http://localhost:8080";
+let socket: any;
+let selectedChatCompare: any;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const { user }: any = useUser();
@@ -31,6 +36,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [messages, setMessages] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [newMessage, setNewMessage] = React.useState<string>("");
+  const [socketConnected, setSocketConnected] = React.useState<boolean>(false);
+
+  useEffect(() => {
+    socket = io("http://localhost:8080");
+    socket.emit("setup", user.rest);
+    socket.on("connected", () => setSocketConnected(true));
+  }, []);
+  const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    // TODO: typing indicator
+  };
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -42,6 +58,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       console.log(data);
       setMessages(data);
       setLoading(false);
+      socket.emit("join chat", selectedChat._id);
     } catch (error) {
       console.log(error);
       setSnackbarOpen(true);
@@ -51,8 +68,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
 
   React.useEffect(() => {
     fetchMessages();
+    selectedChatCompare = selectedChat;
   }, [selectedChat]);
-
+  useEffect(() => {
+    socket.on("message received", (newMessage: any) => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessage.chat._id
+      ) {
+        // TODO: notification
+      } else {
+        setMessages([...messages, newMessage]);
+      }
+    });
+  });
   const handleSendMessage = async (
     e: React.KeyboardEvent<HTMLInputElement>
   ) => {
@@ -70,6 +99,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
         setNewMessage("");
         setMessages([...messages, data]);
         // setFetchAgain(!fetchAgain);
+        socket.emit("new messages", data);
       } catch (error) {
         console.log(error);
         setSnackbarOpen(true);
@@ -77,10 +107,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       }
     }
   };
-  const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMessage(e.target.value);
-    // TODO: typing indicator
-  };
+
   return (
     <>
       {selectedChat ? (
@@ -122,7 +149,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
                 <UpdateGroupChatModel
                   fetchAgain={fetchAgain}
                   setFetchAgain={setFetchAgain}
-                  fetchMessages = {fetchMessages}
+                  fetchMessages={fetchMessages}
                 />
               </>
             )}
@@ -148,7 +175,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
                 flexDirection={"column"}
                 sx={{ overflowY: "scroll", scrollbarWidth: "none" }}
               >
-                <ScrollableChat messages = {messages} />
+                <ScrollableChat messages={messages} />
               </Box>
             )}
             <TextField
