@@ -17,6 +17,8 @@ import ProfileModel from "./ProfileModel";
 import axios from "axios";
 import ScrollableChat from "./ScrollableChat";
 import { io } from "socket.io-client";
+import Lottie from "lottie-react";
+import animationData from "../../animation/typing.json";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -37,15 +39,34 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [newMessage, setNewMessage] = React.useState<string>("");
   const [socketConnected, setSocketConnected] = React.useState<boolean>(false);
+  const [typing, setTyping] = React.useState<boolean>(false);
+  const [isTyping, setIsTyping] = React.useState<boolean>(false);
 
   useEffect(() => {
     socket = io("http://localhost:8080");
     socket.emit("setup", user.rest);
     socket.on("connected", () => setSocketConnected(true));
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
+    return () => {
+      socket.disconnect();}
   }, []);
   const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
     // TODO: typing indicator
+    if(!socketConnected) return;
+    if (e.target.value !== "" && !typing) {
+      setTyping(true);
+      socket.emit("typing", selectedChat._id);
+    }
+    let currentTime = new Date().getTime();
+    setTimeout(()=>{
+      let timeDiff = new Date().getTime() - currentTime;
+      if(timeDiff >= 2000 && typing){
+        socket.emit("stop typing", selectedChat._id);
+        setTyping(false);
+      }
+    }, 2000);
   };
 
   const fetchMessages = async () => {
@@ -177,7 +198,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
               >
                 <ScrollableChat messages={messages} />
               </Box>
-            )}
+            )}{
+              isTyping && (
+                <div>
+                  <Lottie
+                    animationData={animationData}
+                    style={{ width: "70px", height: "50px" }}
+                   />
+                </div>
+              ) 
+
+            }
             <TextField
               required
               sx={{ mt: 3 }}
