@@ -31,7 +31,7 @@ let selectedChatCompare: any;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const { user }: any = useUser();
-  const { selectedChat, setSelectedChat }: any = useChat();
+  const { selectedChat, setSelectedChat,notification,setNotification }: any = useChat();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -97,7 +97,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessage.chat._id
       ) {
-        // TODO: notification
+        if(!notification.includes(newMessage)){
+          setNotification([...notification, newMessage]);
+          setFetchAgain(!fetchAgain);
+        }
+
       } else {
         setMessages([...messages, newMessage]);
       }

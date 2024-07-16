@@ -307,7 +307,7 @@ const SideDrawer = () => {
   const [open, setOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const { selectedChat, setSelectedChat, chats, setChats }: any = useChat();
+  const { selectedChat, setSelectedChat, chats, setChats, notification, setNotification }: any = useChat();
   const [ChatLoading, setChatLoading] = useState(false);
   const { user }: any = useUser();
   // console.log("user",user.rest._id);
@@ -368,7 +368,7 @@ const SideDrawer = () => {
           </Button>
         </Tooltip>
         <div>
-          <NotificationsMenu />
+          <NotificationsMenu notification={notification} setNotification={setNotification} />
           <ProfileMenu />
         </div>
       </Box>
