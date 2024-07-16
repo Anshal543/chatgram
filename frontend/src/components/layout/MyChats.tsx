@@ -20,6 +20,7 @@ const MyChats = ({fetchAgain}:MyChatsProps) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
+
   const handleSnackbar = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarOpen(true);

@@ -25,7 +25,6 @@ const NotificationsMenu = ({
   const handleClose = () => {
     setAnchorEl(null);
   };
-  console.log(notification);
 
   return (
     <>

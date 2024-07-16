@@ -13,6 +13,7 @@ const io = new Server(server, {
     }
 })
 
+const usersSocket = {};
 io.on("connection",(socket)=>{
     // console.log("connected",socket.id);
     socket.on("setup",(userData)=>{
@@ -41,6 +42,14 @@ io.on("connection",(socket)=>{
             if(user._id === newMessageReceived.sender._id) return;
             socket.to(user._id).emit("message received",newMessageReceived);
         })
+    })
+    socket.on("online",(userId)=>{
+        console.log("online");
+        socket.to(userId).emit("online");
+    })
+    socket.on("offline",(userId)=>{
+        console.log("offline");
+        socket.to(userId).emit("offline");
     })
 
     socket.on("disconnect",()=>{

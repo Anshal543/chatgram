@@ -41,6 +41,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [socketConnected, setSocketConnected] = React.useState<boolean>(false);
   const [typing, setTyping] = React.useState<boolean>(false);
   const [isTyping, setIsTyping] = React.useState<boolean>(false);
+  const [onlineUsers, setOnlineUsers] = React.useState([]);
 
   useEffect(() => {
     socket = io("http://localhost:8080");
@@ -48,9 +49,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
+    socket.on("online", (user:any) => {
+      setOnlineUsers((prevUsers)=>[...prevUsers, user]);
+    });
+    socket.on("offline", (user:any) => {
+      setOnlineUsers((prevUsers)=>prevUsers.filter((u:any)=>u!==user));
+    });
+    
     return () => {
       socket.disconnect();}
-  }, []);
+  }, [user.rest]);
   const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
     // TODO: typing indicator
@@ -68,7 +76,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       }
     }, 2000);
   };
-
+;
   const fetchMessages = async () => {
     if (!selectedChat) return;
     try {
@@ -76,17 +84,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/message/${selectedChat._id}`
       );
-      console.log(data);
       setMessages(data);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
+      socket.emit("online", user.rest._id);
     } catch (error) {
       console.log(error);
       setSnackbarOpen(true);
       setSnackbarMessage("Failed to fetch messages");
     }
   };
-
+  console.log(onlineUsers)
   React.useEffect(() => {
     fetchMessages();
     selectedChatCompare = selectedChat;
@@ -101,10 +109,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
           setNotification([...notification, newMessage]);
           setFetchAgain(!fetchAgain);
         }
-
+        
       } else {
         setMessages([...messages, newMessage]);
       }
+   
     });
   });
   const handleSendMessage = async (
@@ -161,8 +170,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
                   {
                     // selectedChat.users.find((u: any) => u._id !== user?._id)
                     //   .username
-                    getSender(user.rest, selectedChat.users)
+                    getSender(user.rest, selectedChat.users) 
                   }
+                 {onlineUsers.includes(selectedChat.users._id) ? "🟢" : "🔴"}
                 </Typography>
                 <ProfileModel
                   user={getSenderFull(user.rest, selectedChat.users)}
