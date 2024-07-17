@@ -15,7 +15,12 @@ const io = new Server(server, {
 
 const usersSocket = {};
 io.on("connection",(socket)=>{
-    // console.log("connected",socket.id);
+    console.log(socket);
+    const userId = socket.handshake.query.userId;
+    if(userId!=undefined) usersSocket[userId] = socket.id;
+    console.log("connected",usersSocket);
+    io.emit("onlineusers",Object.keys(usersSocket));
+
     socket.on("setup",(userData)=>{
         socket.join(userData._id);
         console.log(userData?._id);
@@ -43,17 +48,20 @@ io.on("connection",(socket)=>{
             socket.to(user._id).emit("message received",newMessageReceived);
         })
     })
-    socket.on("online",(userId)=>{
-        console.log("online");
-        socket.to(userId).emit("online");
-    })
-    socket.on("offline",(userId)=>{
-        console.log("offline");
-        socket.to(userId).emit("offline");
-    })
+    // socket.on("online",(userId)=>{
+    //     console.log("online");
+    //     socket.to(userId).emit("online");
+    // })
+    // socket.on("offline",(userId)=>{
+    //     console.log("offline");
+    //     socket.to(userId).emit("offline");
+    // })
 
     socket.on("disconnect",()=>{
         console.log("disconnected",socket.id);
+        delete usersSocket[userId];
+        io.emit("onlineusers",Object.keys(usersSocket));
+
     })
 })
 

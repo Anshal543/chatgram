@@ -5,3 +5,6 @@
 + handle unnecessarry renders
 <!-- + turn sideDrawer into multiple component -->
 + work on ui after completing the project
++ time of message sent
++ emoji
++ online user

@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
-import { getSender, getSenderFull } from "../../config/ChatLogics";
+import { getOnlineUser, getSender, getSenderFull } from "../../config/ChatLogics";
 import { useChat } from "../../context/ChatContext";
 import { useUser } from "../../context/UserContext";
 import UpdateGroupChatModel from "../layout/UpdateGroupChatModel";
@@ -44,21 +44,27 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [onlineUsers, setOnlineUsers] = React.useState([]);
 
   useEffect(() => {
-    socket = io("http://localhost:8080");
-    socket.emit("setup", user.rest);
+    socket = io("http://localhost:8080",{
+      query:{userId:user?.rest?._id}
+    });
+    socket.emit("setup", user?.rest?._id);
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
-    socket.on("online", (user:any) => {
-      setOnlineUsers((prevUsers)=>[...prevUsers, user]);
-    });
-    socket.on("offline", (user:any) => {
-      setOnlineUsers((prevUsers)=>prevUsers.filter((u:any)=>u!==user));
+    // socket.on("online", (user:any) => {
+    //   setOnlineUsers((prevUsers)=>[...prevUsers, user]);
+    // });
+    // socket.on("offline", (user:any) => {
+    //   setOnlineUsers((prevUsers)=>prevUsers.filter((u:any)=>u!==user));
+    // });
+    socket.on("onlineusers", (users:any) => {
+      console.log(users);
+      setOnlineUsers(users);
     });
     
     return () => {
       socket.disconnect();}
-  }, [user.rest]);
+  }, [user?.rest]);
   const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
     // TODO: typing indicator
@@ -87,7 +93,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       setMessages(data);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
-      socket.emit("online", user.rest._id);
     } catch (error) {
       console.log(error);
       setSnackbarOpen(true);
@@ -172,7 +177,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
                     //   .username
                     getSender(user.rest, selectedChat.users) 
                   }
-                 {onlineUsers.includes(selectedChat.users._id) ? "🟢" : "🔴"}
+                 {onlineUsers.includes(getOnlineUser(user.rest,selectedChat.users)) ? "🟢" : "🔴"}
                 </Typography>
                 <ProfileModel
                   user={getSenderFull(user.rest, selectedChat.users)}
