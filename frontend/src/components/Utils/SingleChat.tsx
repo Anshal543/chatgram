@@ -2,23 +2,23 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   Box,
   CircularProgress,
-  FormControl,
   IconButton,
   Snackbar,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
-import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import Lottie from "lottie-react";
+import React, { useContext, useEffect, useState } from "react";
+import { io } from "socket.io-client";
+import animationData from "../../animation/typing.json";
 import { getOnlineUser, getSender, getSenderFull } from "../../config/ChatLogics";
 import { useChat } from "../../context/ChatContext";
+import SocketContext from "../../context/SocketContext";
 import { useUser } from "../../context/UserContext";
 import UpdateGroupChatModel from "../layout/UpdateGroupChatModel";
 import ProfileModel from "./ProfileModel";
-import axios from "axios";
 import ScrollableChat from "./ScrollableChat";
-import { io } from "socket.io-client";
-import Lottie from "lottie-react";
-import animationData from "../../animation/typing.json";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -42,10 +42,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [typing, setTyping] = React.useState<boolean>(false);
   const [isTyping, setIsTyping] = React.useState<boolean>(false);
   const [onlineUsers, setOnlineUsers] = React.useState([]);
+  let {socket}:any = useContext(SocketContext)
 
   useEffect(() => {
     socket = io("http://localhost:8080",{
-      query:{userId:user?.rest?._id}
+    query:{userId:user?.rest?._id}
     });
     socket.emit("setup", user?.rest?._id);
     socket.on("connected", () => setSocketConnected(true));
@@ -177,7 +178,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
                     //   .username
                     getSender(user.rest, selectedChat.users) 
                   }
-                 {onlineUsers.includes(getOnlineUser(user.rest,selectedChat.users)) ? "🟢" : "🔴"}
+                 {onlineUsers.includes(getOnlineUser(user.rest,selectedChat.users)) ? " online" : null}
                 </Typography>
                 <ProfileModel
                   user={getSenderFull(user.rest, selectedChat.users)}

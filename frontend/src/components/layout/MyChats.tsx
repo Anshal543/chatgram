@@ -19,13 +19,18 @@ const MyChats = ({fetchAgain}:MyChatsProps) => {
   const [loggedInUser, setLoggedInUser] = useState();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [onlineUsers, setOnlineUsers] = React.useState([]);
 
 
   const handleSnackbar = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarOpen(true);
   };
-
+  // useEffect(()=>{
+  //   socket.on("onlineusers", (users:any) => {
+  //     console.log(users);
+  //     setOnlineUsers(users);});
+  // },[onlineUsers])
   const fetchChats = async () => {
     try {
       const response = await axios.get(
@@ -126,7 +131,8 @@ const MyChats = ({fetchAgain}:MyChatsProps) => {
                   <Typography>
                     {!chat.isGroupChat
                       ? getSender(loggedInUser, chat.users)
-                      : chat.chatName}
+                      : chat.chatName }
+                      {/* <span>{onlineUsers.includes(getOnlineUser(user.rest,selectedChat.users)) ? " online" : null}</span> */}
                   </Typography>
                 </Box>
               ))}

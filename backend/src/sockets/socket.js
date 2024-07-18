@@ -15,21 +15,17 @@ const io = new Server(server, {
 
 const usersSocket = {};
 io.on("connection",(socket)=>{
-    console.log(socket);
     const userId = socket.handshake.query.userId;
     if(userId!=undefined) usersSocket[userId] = socket.id;
-    console.log("connected",usersSocket);
     io.emit("onlineusers",Object.keys(usersSocket));
 
     socket.on("setup",(userData)=>{
         socket.join(userData._id);
-        console.log(userData?._id);
         socket.emit("connected");
     })
 
     socket.on("join chat",(room)=>{
         socket.join(room);
-        console.log("room joined",room);
     })
 
     socket.on("typing",(room)=>{
