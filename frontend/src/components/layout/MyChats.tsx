@@ -19,7 +19,7 @@ const MyChats = ({fetchAgain}:MyChatsProps) => {
   const [loggedInUser, setLoggedInUser] = useState();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [onlineUsers, setOnlineUsers] = React.useState([]);
+  // const [onlineUsers, setOnlineUsers] = React.useState([]);
 
 
   const handleSnackbar = (message: string) => {

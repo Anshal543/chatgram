@@ -25,7 +25,7 @@ const NotificationsMenu = ({
   const handleClose = () => {
     setAnchorEl(null);
   };
-
+  console.log(notification);
   return (
     <>
       <IconButton
@@ -46,8 +46,7 @@ const NotificationsMenu = ({
         {notification.map((item: any) => (
           <MenuItem
             key={item._id}
-            onClick={handleClose}
-            onClickCapture={() => {
+            onClick={() => {
               setSelectedChat(item.chat);
               setNotification(
                 notification.filter((not: any) => not._id !== item._id)

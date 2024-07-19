@@ -42,16 +42,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [typing, setTyping] = React.useState<boolean>(false);
   const [isTyping, setIsTyping] = React.useState<boolean>(false);
   const [onlineUsers, setOnlineUsers] = React.useState([]);
-  let {socket}:any = useContext(SocketContext)
+  // let {socket}:any = useContext(SocketContext)
 
   useEffect(() => {
     socket = io("http://localhost:8080",{
     query:{userId:user?.rest?._id}
     });
-    socket.emit("setup", user?.rest?._id);
+    socket.emit("setup", user?.rest);
     socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop typing", () => setIsTyping(false));
+    socket.on("typing", (chatId:any) => {
+      if (selectedChatCompare && selectedChatCompare._id === chatId) {
+        setIsTyping(true);
+      }
+    });
+    socket.on("stop typing", (chatId:any) => {
+      if (selectedChatCompare && selectedChatCompare._id === chatId) {
+        setIsTyping(false);
+      }
+    });
     // socket.on("online", (user:any) => {
     //   setOnlineUsers((prevUsers)=>[...prevUsers, user]);
     // });
@@ -65,25 +73,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
     
     return () => {
       socket.disconnect();}
-  }, [user?.rest]);
+  }, [user.rest]);
   const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
-    // TODO: typing indicator
-    if(!socketConnected) return;
-    if (e.target.value !== "" && !typing) {
+    if (!socketConnected) return;
+    if (!typing) {
       setTyping(true);
       socket.emit("typing", selectedChat._id);
     }
-    let currentTime = new Date().getTime();
-    setTimeout(()=>{
-      let timeDiff = new Date().getTime() - currentTime;
-      if(timeDiff >= 2000 && typing){
+    let lastTypingTime = new Date().getTime();
+    let timerLength = 3000;
+    setTimeout(() => {
+      let timeNow = new Date().getTime();
+      let timeDiff = timeNow - lastTypingTime;
+      if (timeDiff >= timerLength && typing) {
         socket.emit("stop typing", selectedChat._id);
         setTyping(false);
       }
-    }, 2000);
+    }, timerLength);
   };
-;
   const fetchMessages = async () => {
     if (!selectedChat) return;
     try {
@@ -94,6 +102,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       setMessages(data);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
+      setNotification((prev)=>prev.filter((not:any)=>not.chat._id !== selectedChat._id));
     } catch (error) {
       console.log(error);
       setSnackbarOpen(true);
@@ -105,23 +114,21 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
     fetchMessages();
     selectedChatCompare = selectedChat;
   }, [selectedChat]);
+
   useEffect(() => {
-    socket.on("message received", (newMessage: any) => {
-      if (
-        !selectedChatCompare ||
-        selectedChatCompare._id !== newMessage.chat._id
-      ) {
-        if(!notification.includes(newMessage)){
-          setNotification([...notification, newMessage]);
+    socket.on("message received", (newMessageReceived: any) => {
+      if ( !selectedChatCompare ||selectedChatCompare._id !== newMessageReceived.chat._id) {
+        if(!notification.includes(newMessageReceived) ){
+          setNotification([...notification, newMessageReceived]);
           setFetchAgain(!fetchAgain);
         }
-        
       } else {
-        setMessages([...messages, newMessage]);
+        setMessages([...messages, newMessageReceived]);
       }
    
     });
   });
+  console.log(notification);
   const handleSendMessage = async (
     e: React.KeyboardEvent<HTMLInputElement>
   ) => {
@@ -129,7 +136,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       console.log("Sending message");
       try {
         const { data } = await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/message/`,
+          `${import.meta.env.VITE_BACKEND_URL}/message`,
           {
             chatId: selectedChat._id,
             content: newMessage,

@@ -29,19 +29,20 @@ io.on("connection",(socket)=>{
     })
 
     socket.on("typing",(room)=>{
-        socket.to(room).emit("typing");
+        socket.to(room).emit("typing",room);
     })
 
     socket.on("stop typing",(room)=>{
-        socket.to(room).emit("stop typing");
+        socket.to(room).emit("stop typing",room);
     })
 
     socket.on("new messages",(newMessageReceived)=>{
         const chat = newMessageReceived.chat;
         if(!chat.users) return console.log("chat.users not defined");
         chat.users.forEach(user=>{
-            if(user._id === newMessageReceived.sender._id) return;
+            if(user._id == newMessageReceived.sender._id) return;
             socket.to(user._id).emit("message received",newMessageReceived);
+            console.log("yes");
         })
     })
     // socket.on("online",(userId)=>{
@@ -55,8 +56,8 @@ io.on("connection",(socket)=>{
 
     socket.on("disconnect",()=>{
         console.log("disconnected",socket.id);
-        delete usersSocket[userId];
-        io.emit("onlineusers",Object.keys(usersSocket));
+        // delete usersSocket[userId];
+        // io.emit("onlineusers",Object.keys(usersSocket));
 
     })
 })
