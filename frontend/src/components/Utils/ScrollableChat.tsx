@@ -2,6 +2,8 @@ import ScrollableFeed from "react-scrollable-feed";
 import { isLastMessage, isSameSender, isSameSenderMargin, isSameUser } from "../../config/ChatLogics";
 import { useUser } from "../../context/UserContext";
 import { Avatar, Tooltip } from "@mui/material";
+import {format} from 'timeago.js'
+import { create } from "@mui/material/styles/createTransitions";
 
 const ScrollableChat = ({ messages }: any) => {
   const { user }: any = useUser();
@@ -37,6 +39,10 @@ const ScrollableChat = ({ messages }: any) => {
               }}
             >
               {m.content}
+              <div style={{fontSize:13}}>
+              {format(m.createdAt)}
+              </div>
+                
             </span>
           </div>
         ))}

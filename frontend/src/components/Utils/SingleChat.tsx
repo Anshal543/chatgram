@@ -14,11 +14,11 @@ import { io } from "socket.io-client";
 import animationData from "../../animation/typing.json";
 import { getOnlineUser, getSender, getSenderFull } from "../../config/ChatLogics";
 import { useChat } from "../../context/ChatContext";
-import SocketContext from "../../context/SocketContext";
 import { useUser } from "../../context/UserContext";
 import UpdateGroupChatModel from "../layout/UpdateGroupChatModel";
 import ProfileModel from "./ProfileModel";
 import ScrollableChat from "./ScrollableChat";
+import { useSocket } from "../../context/SocketContext";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -42,12 +42,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [typing, setTyping] = React.useState<boolean>(false);
   const [isTyping, setIsTyping] = React.useState<boolean>(false);
   const [onlineUsers, setOnlineUsers] = React.useState([]);
-  // let {socket}:any = useContext(SocketContext)
+  // const {socket}:any = useSocket();
 
   useEffect(() => {
     socket = io("http://localhost:8080",{
     query:{userId:user?.rest?._id}
     });
+    if (!socket) return;
     socket.emit("setup", user?.rest);
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", (chatId:any) => {
@@ -73,7 +74,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
     
     return () => {
       socket.disconnect();}
-  }, [user.rest]);
+    // return () => {
+    //   socket.off("typing");
+    //   socket.off("stop typing");
+    //   socket.off("onlineusers");
+    // };
+  }, [user?.rest,socket]);
   const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
     if (!socketConnected) return;
@@ -102,7 +108,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       setMessages(data);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
-      setNotification((prev)=>prev.filter((not:any)=>not.chat._id !== selectedChat._id));
+      setNotification((prev:any)=>prev.filter((not:any)=>not.chat._id !== selectedChat._id));
     } catch (error) {
       console.log(error);
       setSnackbarOpen(true);
@@ -128,7 +134,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
    
     });
   });
-  console.log(notification);
   const handleSendMessage = async (
     e: React.KeyboardEvent<HTMLInputElement>
   ) => {

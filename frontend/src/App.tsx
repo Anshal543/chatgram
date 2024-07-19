@@ -12,7 +12,7 @@ const App = () => {
   return (
     <div className="App">
       <UserContextProvider>
-        {/* <ChatContextProvider> */}
+        <ChatContextProvider>
           <SocketProvider>
             <BrowserRouter>
               <Routes>
@@ -21,7 +21,7 @@ const App = () => {
               </Routes>
             </BrowserRouter>
           </SocketProvider>
-        {/* </ChatContextProvider> */}
+        </ChatContextProvider>
       </UserContextProvider>
     </div>
   );

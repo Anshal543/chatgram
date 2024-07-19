@@ -1,11 +1,38 @@
-import React, { createContext, useState } from "react";
-interface SocketContextProps {
-  children: React.ReactNode;
-}
-const SocketContext = createContext({});
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { io, Socket } from 'socket.io-client';
+import { useUser } from './UserContext'; // Ensure you have this context
 
-export const SocketProvider = ({ children }: SocketContextProps) => {
-  let [socket, setSocket] = useState(null);
+interface SocketContextProps {
+  socket: Socket | null;
+}
+
+const SocketContext = createContext<SocketContextProps>({ socket: null });
+
+export const useSocket = () => useContext(SocketContext);
+
+export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user }: any = useUser();
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [onlineUsers, setOnlineUsers] = React.useState([]);
+
+
+  useEffect(() => {
+    if (user?.rest?._id) {
+      const newSocket = io("http://localhost:8080", {
+        query: { userId: user.rest._id }
+      });
+
+      setSocket(newSocket);
+      newSocket.on("onlineusers", (users:any) => {
+        console.log(users);
+        setOnlineUsers(users);
+      });
+
+      return () => {
+        newSocket.disconnect();
+      };
+    }
+  }, [user?.rest?._id]);
 
   return (
     <SocketContext.Provider value={{ socket }}>
@@ -13,5 +40,3 @@ export const SocketProvider = ({ children }: SocketContextProps) => {
     </SocketContext.Provider>
   );
 };
-
-export default SocketContext;
